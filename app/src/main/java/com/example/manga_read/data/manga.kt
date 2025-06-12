@@ -10,3 +10,11 @@ data class MangaItem(
 data class MangaAttributes(
     val title: Map<String, String> // Ej: { "en": "Naruto" }
 )
+
+data class CoverResponse(val data: List<CoverData>)
+data class CoverData(
+    val attributes: CoverAttributes
+)
+data class CoverAttributes(
+    val fileName: String
+)

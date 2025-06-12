@@ -9,7 +9,7 @@ import androidx.core.view.WindowInsetsCompat
 import com.example.manga_read.R
 import com.example.manga_read.data.MangaItem
 import com.example.manga_read.databinding.ActivityMainBinding
-import com.example.manga_read.utils.mangaService
+import com.example.manga_read.utils.MangaService
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -29,12 +29,19 @@ class MainActivity : AppCompatActivity() {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
+        searchManga("") { mangaList ->
+            mangaList.forEach { manga ->
+                val title = manga.attributes.title["en"] ?: "Sin título"
+                Log.d("Manga", "ID: ${manga.id}, Título: $title")
+            }
+        }
+
     }
 
     fun searchManga(query: String, onResult: (List<MangaItem>) -> Unit) {
         CoroutineScope(Dispatchers.IO).launch {
             try {
-                val response = mangaService.getInstance().searchManga(query)
+                val response = MangaService.getInstance().searchManga(query)
                 withContext(Dispatchers.Main) {
                     onResult(response.data)
                 }
