@@ -15,12 +15,11 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-class MangaAdapter(private val mangaList: List<MangaItem>) :
-    RecyclerView.Adapter<MangaAdapter.MangaViewHolder>() {
+class MangaAdapter(private var mangaList: List<MangaItem>) : RecyclerView.Adapter<MangaAdapter.MangaViewHolder>() {
 
     inner class MangaViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        val titleText: TextView = itemView.findViewById(R.id.nameTextView)
         val imageCover: ImageView = itemView.findViewById(R.id.coverImageView)
+        val titleText: TextView = itemView.findViewById(R.id.nameTextView)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MangaViewHolder {
@@ -28,19 +27,17 @@ class MangaAdapter(private val mangaList: List<MangaItem>) :
         return MangaViewHolder(view)
     }
 
+    override fun getItemCount(): Int = mangaList.size
+
     override fun onBindViewHolder(holder: MangaViewHolder, position: Int) {
         val manga = mangaList[position]
-        val context = holder.itemView.context
+        val title = manga.attributes.title["en"] ?: "Sin título"
+        holder.titleText.text = title
 
-        // Título
-        holder.titleText.text = manga.attributes.title["en"] ?: "Sin título"
-
-        // Llamada para obtener portada
         CoroutineScope(Dispatchers.IO).launch {
             try {
                 val coverResponse = MangaService.getInstance().getCover(manga.id)
                 val fileName = coverResponse.data.firstOrNull()?.attributes?.fileName
-
                 if (fileName != null) {
                     val imageUrl = "https://uploads.mangadex.org/covers/${manga.id}/$fileName"
                     withContext(Dispatchers.Main) {
@@ -53,5 +50,8 @@ class MangaAdapter(private val mangaList: List<MangaItem>) :
         }
     }
 
-    override fun getItemCount(): Int = mangaList.size
+    fun updateData(newList: List<MangaItem>) {
+        mangaList = newList
+        notifyDataSetChanged()
+    }
 }
